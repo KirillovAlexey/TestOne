@@ -11,47 +11,44 @@ import static junit.framework.TestCase.assertEquals;
 
 public class RgsTest {
     private WebDriver driver;
-
+    private String url;
+    //Элемент страхование
+    private final String SAFE_SOUL = "//li[contains(@class, 'dropdown adv-analytics')]/a[contains(text(),'Страхование')]";
+    private final String SEND = "//a[contains(text(), 'Отправить заявку')]";
+    private final String CHECK_TEXT = "//b[contains(text(),'Заявка на добровольное медицинское страхование')]";
+    private final String PHONE = "//input[contains(@data-bind,'Phone')]";
 
     @Test
     public void Test() throws Exception {
+        //Pattern pattern = Pattern.compile("\\+\\d \\(\\d{3}\\) \\d{3}\\-\\d{2}\\-\\d{2}");
         System.setProperty("webdriver.gecko.driver", "src/main/resources/geckodriver.exe");
         driver = new FirefoxDriver();
-        String url = "https://www.rgs.ru/";
+        url = "https://www.rgs.ru/";
         driver.get(url);
-        //ожидание загрузки элемента "Страхование"
         (new WebDriverWait(driver, 10)).until(ExpectedConditions.visibilityOf(driver.findElement
-                (By.xpath("//li[contains(@class, 'dropdown adv-analytics')]/a[contains(text(),'Страхование')]"))));
-        //Выбор элемент "Страхование"
-        driver.findElement(By.xpath("//li[contains(@class, 'dropdown adv-analytics')]/a[contains(text(),'Страхование')]")).click();
-        //Выбор элемента ДМС
-        driver.findElement(By.xpath("//ul[contains(@class, 'collapse animated')]/li[contains(@class,'adv-analytics-navigation')]/a[contains(text(),'ДМС')]")).click();
-        //Ожидание загрузки элемента "Отправить заявку"
+                (By.xpath(SAFE_SOUL))));
+        driver.findElement(By.xpath(SAFE_SOUL)).click();
+
+        driver.findElement(By.linkText("ДМС")).click();
+        (new WebDriverWait(driver, 5)).until(ExpectedConditions.visibilityOf(driver.findElement
+                (By.xpath(SEND))));
+
+        driver.findElement(By.xpath(SEND)).click();
         (new WebDriverWait(driver, 10)).until(ExpectedConditions.visibilityOf(driver.findElement
-                (By.xpath("//a[contains(text(), 'Отправить заявку')]"))));
-        //Выбор элемента "Отправить заявку"
-        driver.findElement(By.xpath("//a[contains(text(), 'Отправить заявку')]")).click();
-        //Проверка наличия текста Заявка на добровольное медицинское страхование
-        (new WebDriverWait(driver, 10)).until(ExpectedConditions.visibilityOf(driver.findElement
-                (By.xpath("//b[contains(text(),'Заявка на добровольное медицинское страхование')]"))));
+                (By.xpath(CHECK_TEXT))));
         assertEquals("Заявка на добровольное медицинское страхование",
-                driver.findElement(By.xpath("//b[contains(text(),'Заявка на добровольное медицинское страхование')]")).getText());
+                driver.findElement(By.xpath(CHECK_TEXT)).getText());
         //Заполнение полей формы
-        driver.findElement(By.xpath("//input[contains(@data-bind, 'LastName')]")).sendKeys("Иванов");
-        driver.findElement(By.xpath("//input[contains(@data-bind, 'FirstName')]")).sendKeys("Иван");
-        driver.findElement(By.xpath("//input[contains(@data-bind, 'MiddleName')]")).sendKeys("Иванович");
+        driver.findElement(By.name("LastName")).sendKeys("Иванов");
+        driver.findElement(By.name("FirstName")).sendKeys("Иван");
+        driver.findElement(By.name("MiddleName")).sendKeys("Иванович");
         driver.findElement(By.xpath("//select[contains(@name,'Region')]")).click();
-        //((JavascriptExecutor)driver).executeScript("arguments[0].scrollIntoView();"
-        //  ,webElement);
-        //new Select(driver.findElement(By.name("Region"))).selectByVisibleText("Москва");
         new Select(driver.findElement(By.name("Region"))).selectByVisibleText("Москва");
-        driver.findElement(By.xpath("//input[contains(@data-bind,'Phone')]")).sendKeys("1234567890");
-        driver.findElement(By.name("Email")).sendKeys("qwertyqwerty");////input[contains(@data-bind,'Email')]
-        driver.findElement(By.name("Comment")).sendKeys("Очень хороший банк");////textarea[contains(@data-bind,'Comment')]
-        //Поиск элемента "Я согласен на все"
-        driver.findElement(By.xpath("//input[contains(@data-bind, 'IsProcessingPersonalData')]")).click();////input[contains(@data-bind, 'IsProcessingPersonalData')]
-        //Поиск кнопки "Отправить"
-        driver.findElement(By.xpath("//button[contains(@class,btn)][contains(@data-bind,'click:SubmitForm')]")).click();////button[contains(@data-bind,'click:SubmitForm')]
+        driver.findElement(By.xpath(PHONE)).sendKeys("1234567890");
+        driver.findElement(By.name("Email")).sendKeys("qwertyqwerty");//
+        driver.findElement(By.name("Comment")).sendKeys("Очень хороший банк");
+        driver.findElement(By.className("checkbox")).click();
+        driver.findElement(By.id("button-m")).click();
     }
 
     @After
@@ -61,9 +58,13 @@ public class RgsTest {
         assertEquals("Иванович", driver.findElement(By.name("MiddleName")).getAttribute("value"));
         assertEquals("Москва",
                 new Select(driver.findElement(By.name("Region"))).getAllSelectedOptions().get(0).getText());
-        //assertEquals("+7 (123) 456-78-90",driver.findElement(By.name("Phone")).getAttribute("value"));
-        //assertEquals("qwertyqwerty", driver.findElement(By.name("Email")).getAttribute("value"));
+        assertEquals("+7 (123) 456-78-90", driver.findElement(By.xpath(PHONE)).getAttribute("value"));
+        /*assertEquals("Введите корректное значение",
+                driver.findElement(By.xpath("//*[text()='Телефон']/..//span[@class='validation-error-text']")).getText());*/
+        assertEquals("qwertyqwerty", driver.findElement(By.name("Email")).getAttribute("value"));
+        assertEquals("Введите адрес электронной почты",
+                driver.findElement(By.xpath("//span[@class='validation-error-text'][text()='Введите адрес электронной почты']")).getText());
         assertEquals("Очень хороший банк", driver.findElement(By.name("Comment")).getAttribute("value"));
-        driver.close();
+        driver.quit();
     }
 }
