@@ -7,20 +7,22 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.util.regex.Pattern;
+
 import static junit.framework.TestCase.assertEquals;
 
 public class RgsTest {
     private WebDriver driver;
     private String url;
     //Элемент страхование
-    private final String SAFE_SOUL = "//li[contains(@class, 'dropdown adv-analytics')]/a[contains(text(),'Страхование')]";
+    private final String SAFE_SOUL = "//li[contains(@class, 'dropdown adv-analytics')]/a[contains(text(),'Меню')]";
     private final String SEND = "//a[contains(text(), 'Отправить заявку')]";
     private final String CHECK_TEXT = "//b[contains(text(),'Заявка на добровольное медицинское страхование')]";
     private final String PHONE = "//input[contains(@data-bind,'Phone')]";
 
     @Test
     public void Test() throws Exception {
-        //Pattern pattern = Pattern.compile("\\+\\d \\(\\d{3}\\) \\d{3}\\-\\d{2}\\-\\d{2}");
+        Pattern pattern = Pattern.compile("\\+\\d \\(\\d{3}\\) \\d{3}\\-\\d{2}\\-\\d{2}");
         System.setProperty("webdriver.gecko.driver", "src/main/resources/geckodriver.exe");
         driver = new FirefoxDriver();
         url = "https://www.rgs.ru/";
